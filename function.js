@@ -155,6 +155,11 @@ function PantallaJuego(){
     for (let j = enemigos.length - 1; j >= 0; j--) {
       if (laseres[i].colisionaCon(enemigos[j]) && enemigos[j].estado !== "explotando") {
         enemigos[j].estado = "explotando";
+        //COLOCA EL PUNTAJE DE ACUERDO AL TIPO DE ALIEN        
+        if (enemigos[j].tipo == 0) puntaje += 30; // Rosa Arcade
+        else if (enemigos[j].tipo === 1) puntaje += 20; // Cían
+        else if (enemigos[j].tipo === 2) puntaje += 10; // Amarillo
+        
         enemigos[j].tipo = 3;
         enemigos[j].tiempoExplosion = Date.now();        
         //enemigos.splice(j, 1); //elimina un enemigo justo en la posicion j
