@@ -8,10 +8,14 @@ class Tanque {
     this.w = 20;
     this.h = 10;
     this.velocidad = 5;
+    this.estado="normal"
+    this.tiempocolision = 0;   
   }
 
+  
   mostrar() {
-    fill(0, 255, 0); 
+    if(this.estado=="normal") fill(0, 255, 0);
+    else fill(255,0,0);
     noStroke();
     rect(this.x - this.w/2, this.y, this.w, this.h);
     rect(this.x - 2, this.y - 5, 5, 5); // Cañón superior
