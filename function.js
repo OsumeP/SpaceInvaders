@@ -64,6 +64,7 @@ function reiniciarJuego() {
   enemigos = [];
   laseresEnemigos = [];
   juegoTerminado = false;
+  ufo = null;
   
   // 1. Nos aseguramos de inicializar el tanque
   tanque = new Tanque();
@@ -78,7 +79,7 @@ function reiniciarJuego() {
     let tipoEnemigo = Math.floor(f / 2); 
     if (tipoEnemigo > 2) tipoEnemigo = 2; // Asegura no sobrepasar el tipo 2
     
-    for (let c = 0; c < columnas; c++) {
+    for (let c = 0; c < 1; c++) {
       // Ajusta los números (c * 60 + 80, f * 50 + 80) según el tamaño 
       // y los parámetros que pida el constructor de tu clase Enemigo
       let x = c * 40 + 80; //CAMBIO
@@ -246,6 +247,49 @@ function PantallaJuego(){
       juegoTerminado = true;
     }
   }
+  
+  // --- GESTIÓN COMPLETA DEL UFO ---
+  if (ufo) {
+    let tiempoActual = Date.now();
+
+    if (ufo.estado === "explotando") {
+      ufo.mostrar(); // Dibujar el sprite de explosión
+
+      if (tiempoActual - ufo.tiempoExplosion >= 200) {
+        ufo = null;
+      }
+    } 
+
+    else if (ufo.vivo) {
+      ufo.mover();
+      ufo.mostrar();
+
+      // Comprobar colisión con los láseres del jugador
+      for (let i = laseres.length - 1; i >= 0; i--) {
+        if (ufo.colisionaCon(laseres[i])) {
+          ufo.vivo = false;
+          ufo.estado = "explotando";
+          ufo.tiempoExplosion = Date.now();
+
+          puntaje += 100;
+          laseres.splice(i, 1); 
+
+          if (music && music.enemigo_exp) {
+            music.enemigo_exp.play();
+          }
+          break; 
+        }
+      }
+    } 
+    else {
+      ufo = null; // Se limpia la variable para permitir que vuelva a salir en el futuro
+    }
+  } else {
+    if (random(1) < 0.002) {
+      ufo = new UFO();
+    }
+  }
+  
   
   // Mover filas hacia abajo si algún enemigo tocó un borde lateral
   if (cambiarDireccionGlobal) {

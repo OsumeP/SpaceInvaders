@@ -254,5 +254,102 @@ class LaserEnemigo {
             this.y > tanque.y - tanque.h && this.y < tanque.y + tanque.h);
   }
 }
+// Representa al UFO que aparece de manera aleatoria en la parte superior
+// --- CLASE UFO CORREGIDA ---
+class UFO {
+  constructor() {
+    this.r = 16;
+    this.tamPixel = 3;
+    this.velX = 2.5;
+    this.tiempoExplosion = 0;
+    this.estado = "vivo"; // Cambiamos el control principal a 'estado'
+    
+    // Decidir aleatoriamente si aparece por la izquierda o la derecha
+    if (random(1) < 0.5) {
+      this.x = -this.r * 2;
+      this.velX = 2.5;  // Se mueve a la derecha
+    } else {
+      this.x = width + this.r * 2;
+      this.velX = -2.5; // Se mueve a la izquierda
+    }
+    
+    this.y = 35; 
+    this.vivo = true;
 
+    this.sprite = [
+      [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+      [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [0,0,1,1,1,0,0,1,1,0,0,1,1,1,0,0],
+      [0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0]
+    ];
+    
+    this.spriteExplosion = [
+      [0,1,0,0,1,0,1,0,0,1,0],
+      [0,0,1,0,0,1,0,0,1,0,0],
+      [1,0,0,1,0,0,0,1,0,0,1],
+      [0,1,0,0,0,0,0,0,0,1,0],
+      [1,0,0,1,0,0,0,1,0,0,1],
+      [0,0,1,0,0,1,0,0,1,0,0],
+      [0,1,0,0,1,0,1,0,0,1,0]
+    ];
+  }
 
+  mostrar() {
+    push();
+    rectMode(CENTER);
+    noStroke();
+    
+    let spriteADibujar = null;
+
+    if (this.estado === "explotando") {
+      fill(255, 0, 0); // Rojo de explosión
+      spriteADibujar = th+is.spriteExplosion;
+    } else if (this.vivo) {
+      fill(255, 0, 0); // Rojo clásico del UFO
+      spriteADibujar = this.sprite;
+    }
+
+    if (spriteADibujar) {
+      let filas = spriteADibujar.length;
+      let cols = spriteADibujar[0].length;
+      let offsetX = (cols * this.tamPixel) / 2;
+      let offsetY = (filas * this.tamPixel) / 2;
+
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < cols; j++) {
+          if (spriteADibujar[i][j] === 1) {
+            rect(
+              this.x - offsetX + (j * this.tamPixel),
+              this.y - offsetY + (i * this.tamPixel),
+              this.tamPixel,
+              this.tamPixel
+            );
+          }
+        }
+      }
+    }
+    
+    pop();
+  }
+
+  mover() {
+    // Solo se mueve si sigue vivo y no ha sido destruido
+    if (!this.vivo || this.estado === "explotando") return;
+    
+    this.x += this.velX;
+
+    // Desaparece al salir completamente de la pantalla
+    if ((this.velX > 0 && this.x > width + 40) || (this.velX < 0 && this.x < -40)) {
+      this.vivo = false;
+    }
+  }
+
+  colisionaCon(laser) {
+    if (!this.vivo || this.estado === "explotando") return false;
+    let d = dist(this.x, this.y, laser.x, laser.y);
+    return d < this.r + laser.w;
+  }
+}
