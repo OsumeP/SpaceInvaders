@@ -79,7 +79,7 @@ function reiniciarJuego() {
     let tipoEnemigo = Math.floor(f / 2); 
     if (tipoEnemigo > 2) tipoEnemigo = 2; // Asegura no sobrepasar el tipo 2
     
-    for (let c = 0; c < 1; c++) {
+    for (let c = 0; c < columnas; c++) {
       // Ajusta los números (c * 60 + 80, f * 50 + 80) según el tamaño 
       // y los parámetros que pida el constructor de tu clase Enemigo
       let x = c * 40 + 80; //CAMBIO
@@ -196,24 +196,34 @@ function PantallaJuego(){
   }
   
   // --- GESTIÓN DE LÁSERES ENEMIGOS (BAJAN) ---
+  let tiempoActualLaser = Date.now();
+
   for (let i = laseresEnemigos.length - 1; i >= 0; i--) {
-    laseresEnemigos[i].mostrar();
-    laseresEnemigos[i].mover();
-    
-    if (laseresEnemigos[i].fueraDePantalla()) {
-      laseresEnemigos.splice(i, 1);
-      continue;
+    let laser = laseresEnemigos[i];
+
+    // Si el láser está explotando en el suelo
+    if (laser.estado === "explotando") {
+      laser.mostrar(); // Sigue dibujando el sprite de explosión
+
+      // Tras 100ms se elimina definitivamente
+      if (tiempoActualLaser - laser.tiempoExplosion >= 100) {
+        laseresEnemigos.splice(i, 1);
+      }
+      continue; // Pasa al siguiente disparo
     }
-    
-    // Detectar si el láser enemigo te golpea a ti
-    if (laseresEnemigos[i].colisionaCon(tanque)) {
-      laseresEnemigos.splice(i, 1); // Elimina el proyectil enemigo
-      vidas--; // Pierdes una vida
- 
+
+    laser.mostrar();
+    laser.mover();
+
+    // Detectar si el láser enemigo colisiona con el jugador
+    if (laser.colisionaCon(tanque)) {
+      laseresEnemigos.splice(i, 1);
+      vidas--;
+
       if (vidas <= 0) {
         juegoTerminado = true;
       }
-      break; 
+      break;
     }
   }
   
