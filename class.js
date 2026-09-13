@@ -232,16 +232,62 @@ class LaserEnemigo {
     this.y = y;
     this.w = 4;
     this.h = 12;
+    this.estado = "movimiento";
+    this.tiempoExplosion = 0;
+    this.tamPixel = 2;
     this.velocidad = 4; // Un poco más lento que el del jugador para que sea justo
+    
+    this.choque = [
+      [0,1,0,1,0],
+      [1,0,1,0,1],
+      [0,1,0,1,0],
+      [1,0,0,0,1]
+    ];
   }
 
   mostrar() {
-    fill(255, 50, 50); // Rojo brillante peligroso
-    rect(this.x - this.w/2, this.y, this.w, this.h);
+    push();
+    if (this.estado === "movimiento") {
+      fill(255, 50, 50); // Rojo brillante
+      rectMode(CORNER);
+      rect(this.x - this.w / 2, this.y, this.w, this.h);
+    } else if (this.estado === "explotando") {
+      fill(255, 50, 50);
+      rectMode(CENTER);
+      noStroke();
+
+      let filas = this.choque.length;
+      let cols = this.choque[0].length;
+      let offsetX = (cols * this.tamPixel) / 2;
+      let offsetY = (filas * this.tamPixel) / 2;
+
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < cols; j++) {
+          if (this.choque[i][j] === 1) {
+            rect(
+              this.x - offsetX + (j * this.tamPixel),
+              this.y - offsetY + (i * this.tamPixel),
+              this.tamPixel,
+              this.tamPixel
+            );
+          }
+        }
+      }
+    }
+    pop();
   }
 
   mover() {
-    this.y += this.velocidad; // Baja
+    if (this.estado === "movimiento") {
+      this.y += this.velocidad;
+
+      // Detecta impacto con el suelo (borde inferior)
+      if (this.y >= height - 10) {
+        this.y = height - 10; // Ajusta posición exacta en el suelo
+        this.estado = "explotando";
+        this.tiempoExplosion = Date.now();
+      }
+    }
   }
 
   fueraDePantalla() {
@@ -249,9 +295,14 @@ class LaserEnemigo {
   }
 
   colisionaCon(tanque) {
-    // Caja de colisión precisa para la estructura rectangular de la tanque
-    return (this.x > tanque.x - tanque.w/2 && this.x < tanque.x + tanque.w/2 && 
-            this.y > tanque.y - tanque.h && this.y < tanque.y + tanque.h);
+    if (this.estado !== "movimiento") return false;
+    
+    return (
+      this.x > tanque.x - tanque.w / 2 &&
+      this.x < tanque.x + tanque.w / 2 &&
+      this.y > tanque.y - tanque.h &&
+      this.y < tanque.y + tanque.h
+    );
   }
 }
 // Representa al UFO que aparece de manera aleatoria en la parte superior
