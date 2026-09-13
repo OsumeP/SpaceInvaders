@@ -139,10 +139,10 @@ function PantallaJuego(){
   text("LIVES: " + vidas, width - 150, 30);
   
   // --- CONTROL Y RENDER DEL TANQUE ---
- 
+  //let Tiempo = Date.now(); 
   if (tanque.estado == "alerta") {
-     //Si ya pasó 1.5 segundo (1000 milisegundos) desde el impacto, vuelve a verde
-     if (Date.now() - tanque.tiempocolision >= 150) {
+     //Si ya pasó 1 segundo (1000 milisegundos) desde el impacto, lo borramos
+     if (Date.now() - tanque.tiempocolision >= 140) {
         tanque.estado ="normal";
       }
   }    
@@ -227,9 +227,10 @@ function PantallaJuego(){
     if (laser.colisionaCon(tanque)) {
       laseresEnemigos.splice(i, 1);
       vidas--;
-      tanque.estado="alerta"; //para el cambio de color
+      tanque.estado="alerta";
       tanque.tiempocolision = Date.now();
     
+      
       if (vidas <= 0) {
         juegoTerminado = true;
       }
