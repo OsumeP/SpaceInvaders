@@ -1,4 +1,5 @@
 
+  // --- CLASE TANQUE DEL JUGADOR  ---
 
 class Tanque {
   constructor() {
@@ -23,62 +24,95 @@ class Tanque {
   }
 }
 
+  // --- CLASE LASER DEL TANQUE DEL JUGADOR  ---
+
 class Laser {
   constructor(x, y) {
     this.x = x;
     this.y = y;
     this.w = 4;
     this.h = 15;
+    
     this.velocidad = 7;
+    this.tamPixel = 2;
+    this.tiempoExplosion = 0;    
+    this.estado = "movimiento";    
+    
+    this.choque = [
+      // explosion
+      [
+        [0,0,0,1,1,0,0,0],
+        [1,0,1,0,0,1,0,1],
+        [0,1,0,0,0,0,1,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,1,0,0,0,0,1,0],
+        [1,0,1,0,0,1,0,1],
+        [0,0,0,1,1,0,0,0]
+      ]
+    ];
+    
   }
 
   mostrar() {
+    push();    
     fill(255, 255, 0); // Amarillo Neón
-    rect(this.x - this.w/2, this.y - this.h, this.w, this.h);
+    
+    if (this.estado == "movimiento"){    
+      rect(this.x - this.w/2, this.y - this.h, this.w, this.h);
+    }
+    else  if (this.estado == "explotando"){
+      
+      let sprite = this.choque[0]; //
+      
+      let filas = sprite.length;
+      let cols = sprite[0].length;
+  
+      // Centrar el dibujo en (this.x, this.y)
+      let offsetX = (cols * this.tamPixel) / 2;
+      let offsetY = (filas * this.tamPixel) / 2;
+      //recorre la matriz y si tiene 1 entonces ladibuja
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < cols; j++) {
+          if (sprite[i][j] === 1) {
+            rect(
+              this.x - offsetX + (j * this.tamPixel),
+              this.y - offsetY + (i * this.tamPixel),
+              this.tamPixel,
+              this.tamPixel
+            );
+          }
+        }
+      }
+    }
+    pop();           
   }
 
   mover() {
-    this.y -= this.velocidad; // Sube
+    // El láser solo sube si está en estado de movimiento
+    if (this.estado === "movimiento") {
+      this.y -= this.velocidad; 
+      
+      // Si toca el techo, inicia su explosión aquí mismo
+      if (this.y < 20) { // para que explote un poco antes del borde 
+        this.estado = "explotando";
+        this.tiempoExplosion = Date.now(); // Guarda el milisegundo exacto del choque con el techo
+      }
+    }    
   }
 
-  fueraDePantalla() {
-    return this.y < 0;
-  }
 
   colisionaCon(enemigo) {
+    // Solo puede colisionar si aún se está moviendo
+    if (this.estado !== "movimiento") return false;
+    
     let d = dist(this.x, this.y, enemigo.x, enemigo.y);
     return d < enemigo.r + this.w;
   }
 }
 
-class LaserEnemigo {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.w = 4;
-    this.h = 12;
-    this.velocidad = 4; // Un poco más lento que el del jugador para que sea justo
-  }
 
-  mostrar() {
-    fill(255, 50, 50); // Rojo brillante peligroso
-    rect(this.x - this.w/2, this.y, this.w, this.h);
-  }
-
-  mover() {
-    this.y += this.velocidad; // Baja
-  }
-
-  fueraDePantalla() {
-    return this.y > height;
-  }
-
-  colisionaCon(tanque) {
-    // Caja de colisión precisa para la estructura rectangular de la tanque
-    return (this.x > tanque.x - tanque.w/2 && this.x < tanque.x + tanque.w/2 && 
-            this.y > tanque.y - tanque.h && this.y < tanque.y + tanque.h);
-  }
-}
+  // --- CLASE DEL ALIEND  ---
 
 class Enemigo {
   constructor(x, y, tipo = 0) {
@@ -188,3 +222,37 @@ class Enemigo {
     this.velX *= -1;
   }
 }
+
+
+// --- CLASE LASER DEL ALIEND  ---
+
+class LaserEnemigo {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.w = 4;
+    this.h = 12;
+    this.velocidad = 4; // Un poco más lento que el del jugador para que sea justo
+  }
+
+  mostrar() {
+    fill(255, 50, 50); // Rojo brillante peligroso
+    rect(this.x - this.w/2, this.y, this.w, this.h);
+  }
+
+  mover() {
+    this.y += this.velocidad; // Baja
+  }
+
+  fueraDePantalla() {
+    return this.y > height;
+  }
+
+  colisionaCon(tanque) {
+    // Caja de colisión precisa para la estructura rectangular de la tanque
+    return (this.x > tanque.x - tanque.w/2 && this.x < tanque.x + tanque.w/2 && 
+            this.y > tanque.y - tanque.h && this.y < tanque.y + tanque.h);
+  }
+}
+
+

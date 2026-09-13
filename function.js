@@ -141,30 +141,43 @@ function PantallaJuego(){
   tanque.mostrar();
   tanque.mover();
   
-  // --- GESTIÓN DE LÁSERES DEL JUGADOR (SUBEN) ---
+// --- GESTIÓN DE LÁSERES DEL JUGADOR (SUBEN)*********************************** ---
+
+  let tiempoActual2 = Date.now();
+  
   for (let i = laseres.length - 1; i >= 0; i--) {
-    laseres[i].mostrar();
-    laseres[i].mover();
- 
-    if (laseres[i].fueraDePantalla()) {
-      laseres.splice(i, 1);
-      continue;
-    }
+    let laserplayer = laseres[i];
+  
+    if (laserplayer.estado === "explotando") {
+      // Si ya pasó 1 segundo (1000 milisegundos) desde el impacto, lo borramos
+      if (tiempoActual2 - laserplayer.tiempoExplosion >= 100) {
+        laseres.splice(i, 1); // Quita el laser
+        continue; // Saltamos al siguiente para no mover ni mostrar un enemigo que ya no existe
+      }
+    }    
     
+    laserplayer.mostrar();
+    laserplayer.mover();
+    
+   
     // Detectar si tu láser golpea a un enemigo , se mira al reves el arreglo
     for (let j = enemigos.length - 1; j >= 0; j--) {
-      if (laseres[i].colisionaCon(enemigos[j]) && enemigos[j].estado !== "explotando") {
-        enemigos[j].estado = "explotando";
-        //COLOCA EL PUNTAJE DE ACUERDO AL TIPO DE ALIEN        
-        if (enemigos[j].tipo == 0) puntaje += 30; // Rosa Arcade
-        else if (enemigos[j].tipo === 1) puntaje += 20; // Cían
-        else if (enemigos[j].tipo === 2) puntaje += 10; // Amarillo
+      let enemigo = enemigos[j];
+      
+      if (laserplayer.colisionaCon(enemigo) && enemigo.estado !== "explotando") {
+        enemigo.estado = "explotando";
         
-        enemigos[j].tipo = 3;
-        enemigos[j].tiempoExplosion = Date.now();        
+        //COLOCA EL PUNTAJE DE ACUERDO AL TIPO DE ALIEN        
+        if (enemigo.tipo == 0) puntaje += 30; // Rosa Arcade
+        else if (enemigo.tipo === 1) puntaje += 20; // Cían
+        else if (enemigo.tipo === 2) puntaje += 10; // Amarillo
+        
+        enemigo.tipo = 3;
+        enemigo.tiempoExplosion = Date.now();        
         //enemigos.splice(j, 1); //elimina un enemigo justo en la posicion j
         laseres.splice(i, 1);  //elimina un laser justo en la posicion j
-        puntaje += 100;
+        
+        
         // musica de disparo
         if (music && music.enemigo_exp) {
           music.enemigo_exp.play(); 
