@@ -123,7 +123,7 @@ class Enemigo {
     this.x = x;
     this.y = y;
     this.r = 15; 
-    this.velX = 1.5;
+    this.velX = 1.3;
     this.tipo = tipo; // 0 = Calamar (Arriba), 1 = Cangrejo (Centro), 2 = Pulpo (Abajo) 3 = explotado
     this.estado = "vivo";
     this.tiempoExplosion = 0;
@@ -222,7 +222,7 @@ class Enemigo {
   }
 
   bajarYInvertir() {
-    this.y += 22; //CAMBIO
+    this.y += 20; //CAMBIO
     this.velX *= -1;
   }
 }
@@ -310,7 +310,7 @@ class LaserEnemigo {
   }
 }
 // Representa al UFO que aparece de manera aleatoria en la parte superior
-// --- CLASE UFO CORREGIDA ---
+// --- CLASE UFO---
 class UFO {
   constructor() {
     this.r = 16;
