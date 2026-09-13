@@ -357,7 +357,7 @@ class UFO {
 
     if (this.estado === "explotando") {
       fill(255, 0, 0); // Rojo de explosión
-      spriteADibujar = th+is.spriteExplosion;
+      spriteADibujar = this.spriteExplosion;
     } else if (this.vivo) {
       fill(255, 0, 0); // Rojo clásico del UFO
       spriteADibujar = this.sprite;
