@@ -10,6 +10,10 @@ function impactaEscudos(x, w, yIni, yFin) {
   return false;
 }
 
+function balasSeCruzan(p, e) {
+  return Math.abs(p.x - e.x) < (p.w + e.w) / 2 && p.y - p.h < e.y + e.h && p.y > e.y;                              
+}
+
 // --- FUNCION PANTALLA DE INICIO ---
 function PantallaInicio() {
   fill(200);
@@ -263,6 +267,21 @@ function PantallaJuego(){
       laseresEnemigos.splice(i, 1);
       continue;
     }
+
+        for (let p of laseres) {
+      if (p.estado === "movimiento" && balasSeCruzan(p, laser)) {
+        let cx = (p.x + laser.x) / 2;
+        let cy = (p.y - p.h + laser.y + laser.h) / 2;
+        p.x = cx;      laser.x = cx;
+        p.y = cy;      laser.y = cy;
+        p.estado = "explotando";
+        laser.estado = "explotando";
+        p.tiempoExplosion = Date.now();
+        laser.tiempoExplosion = Date.now();
+        break;
+      }
+    }
+    if (laser.estado === "explotando") continue;
 
     // Detectar si el láser enemigo colisiona con el jugador
     if (laser.colisionaCon(tanque)) {
