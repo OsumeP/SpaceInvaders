@@ -1,20 +1,20 @@
-# Space Invaders - Arcade Game 🚀
+# Space Invaders - Arcade Game
 
 ¡Bienvenido a **Space Invaders**! Este es un clásico juego de arcade desarrollado en la web utilizando **p5.js**. Tu misión es pilotar una nave espacial, destruir las oleadas de invasores alienígenas y defender la Tierra antes de que sea demasiado tarde.
 
-## 🚀 Características
+## Características
 * **Modo de juego clásico:** Mecánicas retro inspiradas en el arcade original.
 * **Juega en el navegador:** No necesitas instalar software pesado, corre directamente en la web.
 * **Gráficos y Animaciones:** Creado completamente utilizando el lienzo interactivo de p5.js.
 
-## 🎮 Cómo jugar
+## Cómo jugar
 Para controlar la nave y defender el espacio, utiliza los siguientes comandos:
 
-* **Moverse a la izquierda:** Flecha Izquierda (`←`) o Tecla `A`
-* **Moverse a la derecha:** Flecha Derecha (`→`) o Tecla `D`
+* **Moverse a la izquierda:** Flecha Izquierda (`←`) 
+* **Moverse a la derecha:** Flecha Derecha (`→`) 
 * **Disparar:** Barra Espaciadora (`Space`)
 
-## 🛠️ Requisitos e Instalación
+## Requisitos e Instalación
 
 Al estar hecho en **p5.js**, puedes jugarlo de forma local de manera muy sencilla:
 
@@ -25,15 +25,11 @@ Al estar hecho en **p5.js**, puedes jugarlo de forma local de manera muy sencill
 2. Abre el archivo `index.html` en cualquier navegador web (Chrome, Firefox, Edge, etc.).
 3. ¡Empieza a jugar!
 
-*Nota: También puedes usar extensiones como **Live Server** en VS Code para ejecutarlo localmente.*
 
-
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 * `index.html`: El archivo HTML que carga la librería de p5.js y renderiza el lienzo del juego.
 * `space_invaders.js`: Archivo principal que contiene las funciones `setup()` y `draw()`.
 * `class.js`: Contiene las clases
 * `function.js`: Contiene las funciones
 * `/Resources` y `/libraries`: Carpetas que contiene las imágenes, fuentes o sonidos utilizados 
 
-##  Licencia
-Este proyecto está bajo la Licencia [MIT / Código Abierto] - siéntete libre de usarlo y mejorarlo.
