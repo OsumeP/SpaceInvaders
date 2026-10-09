@@ -4,6 +4,7 @@ let laseres = [];          // Disparos del jugador
 let enemigos = [];         // Lista de marcianitos
 let laseresEnemigos = [];  // Disparos de los enemigos
 let ufo;
+let escudos = [];
 let puntaje = 0;
 let vidas = 3;             // El jugador empieza con 3 vidas
 let juegoTerminado = false;

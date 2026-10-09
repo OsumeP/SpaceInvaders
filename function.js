@@ -1,5 +1,16 @@
-  // --- FUNCION PANTALLA DE INICIO ---
-  
+function impactaEscudos(x, w, yIni, yFin) {
+  let paso = yFin >= yIni ? 2 : -2;
+  for (let y = yIni; paso > 0 ? y <= yFin : y >= yFin; y += paso) {
+    for (let dx of [-w / 2 + 1, 0, w / 2 - 1]) {
+      for (let e of escudos) {
+        if (e.impacto(x + dx, y, 1)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+// --- FUNCION PANTALLA DE INICIO ---
 function PantallaInicio() {
   fill(200);
   textFont(font.Pixel);  
@@ -68,7 +79,13 @@ function reiniciarJuego() {
   
   // 1. Nos aseguramos de inicializar el tanque
   tanque = new Tanque();
-  
+  // 4 escudos fijos, repartidos en el ancho y encima del tanque
+  escudos = [];
+  for (let i = 0; i < 4; i++) {
+    let ancho = 22 * 3; // cols * tamPixel
+    let x = (width / 4) * (i + 0.5) - ancho / 2;
+    escudos.push(new Escudo(x, 480));
+  }
   // 2. Generación de marcianos
   // Creamos una cuadrícula de enemigos (ejemplo: 4 filas x 8 columnas)
   let filas = 5;
@@ -149,6 +166,7 @@ function PantallaJuego(){
    
   tanque.mostrar();
   tanque.mover();
+  for (let e of escudos) e.mostrar();
   
 // --- GESTIÓN DE LÁSERES DEL JUGADOR (SUBEN)*********************************** ---
 
@@ -165,10 +183,14 @@ function PantallaJuego(){
       }
     }    
     
+    let yAntes = laserplayer.y;
     laserplayer.mostrar();
     laserplayer.mover();
-    
-   
+
+    if (laserplayer.estado === "movimiento" && impactaEscudos(laserplayer.x, laserplayer.w, yAntes - laserplayer.h, laserplayer.y - laserplayer.h)) {
+      laseres.splice(i, 1);
+      continue;
+    }
     // Detectar si tu láser golpea a un enemigo , se mira al reves el arreglo
     for (let j = enemigos.length - 1; j >= 0; j--) {
       let enemigo = enemigos[j];
@@ -219,9 +241,15 @@ function PantallaJuego(){
       }
       continue; // Pasa al siguiente disparo
     }
-
+    
+    let yAntes = laser.y;         // <- NUEVO, antes de mostrar/mover
     laser.mostrar();
     laser.mover();
+
+    if (laser.estado === "movimiento" && impactaEscudos(laser.x, laser.w, yAntes + laser.h, laser.y + laser.h)) {
+      laseresEnemigos.splice(i, 1);
+      continue;
+    }
 
     // Detectar si el láser enemigo colisiona con el jugador
     if (laser.colisionaCon(tanque)) {
@@ -253,15 +281,21 @@ function PantallaJuego(){
     }    
     enemigo.mostrar();
     enemigo.mover();
-    // Decidir aleatoriamente si este enemigo dispara (Probabilidad 1 entre 1000)
+
     if (enemigo.estado === "vivo" && random(1000) < 1) {
       laseresEnemigos.push(new LaserEnemigo(enemigo.x, enemigo.y));
     }
- 
+
+    if (enemigo.estado === "vivo") {
+      let mitad = 4 * enemigo.tamPixel;   // el sprite es de 8x8 píxeles
+      for (let e of escudos) {
+        e.borrarRect(enemigo.x - mitad, enemigo.y - mitad, mitad * 2, mitad * 2);
+      }
+    }
+
     if (enemigo.tocaBorde()) {
       cambiarDireccionGlobal = true;
-    }
-    
+    }    
     // Si los enemigos invaden tu posición del mapa
     if (enemigo.y + enemigo.r > tanque.y) {
       juegoTerminado = true;
@@ -323,3 +357,4 @@ function PantallaJuego(){
     juegoTerminado = true;
   }
 }
+

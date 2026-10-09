@@ -234,13 +234,35 @@ class LaserEnemigo {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.w = 4;
-    this.h = 12;
     this.estado = "movimiento";
     this.tiempoExplosion = 0;
     this.tamPixel = 2;
-    this.velocidad = 4; // Un poco más lento que el del jugador para que sea justo
-    
+    this.velocidad = 4;
+    this.tiposBala = [
+      [
+        [0,1,0],
+        [1,1,1],
+        [0,1,0],
+        [0,1,0],
+        [0,1,0],
+        [0,1,0],
+        [0,1,0]
+      ],
+      [
+        [0,1,0],
+        [1,0,0],
+        [0,1,0],
+        [0,0,1],
+        [0,1,0],
+        [1,0,0],
+        [0,1,0]
+      ]
+    ];
+    this.tipoBala = floor(random(this.tiposBala.length));
+    this.sprite = this.tiposBala[this.tipoBala];
+    this.w = this.sprite[0].length * this.tamPixel;
+    this.h = this.sprite.length * this.tamPixel;
+
     this.choque = [
       [0,1,0,1,0],
       [1,0,1,0,1],
@@ -253,8 +275,20 @@ class LaserEnemigo {
     push();
     if (this.estado === "movimiento") {
       fill(255, 50, 50); // Rojo brillante
+      noStroke();
       rectMode(CORNER);
-      rect(this.x - this.w / 2, this.y, this.w, this.h);
+      for (let i = 0; i < this.sprite.length; i++) {
+        for (let j = 0; j < this.sprite[0].length; j++) {
+          if (this.sprite[i][j] === 1) {
+            rect(
+              this.x - this.w / 2 + j * this.tamPixel,
+              this.y + i * this.tamPixel,
+              this.tamPixel,
+              this.tamPixel
+            );
+          }
+        }
+      }
     } else if (this.estado === "explotando") {
       fill(255, 50, 50);
       rectMode(CENTER);
@@ -406,5 +440,82 @@ class UFO {
     if (!this.vivo || this.estado === "explotando") return false;
     let d = dist(this.x, this.y, laser.x, laser.y);
     return d < this.r + laser.w;
+  }
+}
+
+// --- CLASE ESCUDO ---
+class Escudo {
+  constructor(x, y) {
+    this.x = x;          
+    this.y = y;
+    this.tamPixel = 3;
+
+    const forma = [
+      "0000111111111111110000",
+      "0001111111111111111000",
+      "0011111111111111111100",
+      "0111111111111111111110",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111111111111111111",
+      "1111111000000001111111",
+      "1111111000000001111111",
+      "1111111000000001111111",
+      "1111111000000001111111",
+      "1111111000000001111111"
+    ];
+    this.pixeles = forma.map(fila => fila.split("").map(Number));
+    this.filas = this.pixeles.length;
+    this.cols = this.pixeles[0].length;
+    this.w = this.cols * this.tamPixel;
+    this.h = this.filas * this.tamPixel;
+  }
+
+  mostrar() {
+    push();
+    noStroke();
+    fill(0, 255, 0);
+    for (let i = 0; i < this.filas; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        if (this.pixeles[i][j] === 1) {
+          rect(this.x + j * this.tamPixel, this.y + i * this.tamPixel, this.tamPixel, this.tamPixel);
+        }
+      }
+    }
+    pop();
+  }
+
+  impacto(px, py, radio) {
+    let col = floor((px - this.x) / this.tamPixel);
+    let fila = floor((py - this.y) / this.tamPixel);
+
+    if (fila < 0 || fila >= this.filas || col < 0 || col >= this.cols) return false;
+    if (this.pixeles[fila][col] !== 1) return false;
+
+    for (let i = -radio; i <= radio; i++) {
+      for (let j = -radio; j <= radio; j++) {
+        let f = fila + i;
+        let c = col + j;
+        if (f < 0 || f >= this.filas || c < 0 || c >= this.cols) continue;
+        if (this.pixeles[f][c] === 1 && random(1) < 0.7) this.pixeles[f][c] = 0;
+      }
+    }
+    this.pixeles[fila][col] = 0; // el píxel exacto siempre se destruye
+    return true;
+  }
+  borrarRect(rx, ry, rw, rh) {
+    let c1 = Math.max(0, floor((rx - this.x) / this.tamPixel));
+    let c2 = Math.min(this.cols - 1, floor((rx + rw - this.x) / this.tamPixel));
+    let f1 = Math.max(0, floor((ry - this.y) / this.tamPixel));
+    let f2 = Math.min(this.filas - 1, floor((ry + rh - this.y) / this.tamPixel));
+    for (let f = f1; f <= f2; f++) {
+      for (let c = c1; c <= c2; c++) {
+        this.pixeles[f][c] = 0;
+      }
+    }
   }
 }
