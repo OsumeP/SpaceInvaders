@@ -17,6 +17,8 @@ function PantallaInicio() {
   
   // 1. Mensaje de acción
   textSize(16);
+  text("HI-SCORE", width / 2, height * 0.07);
+  text(nf(hiScore, 4), width / 2, height * 0.11);
  
   text("PLAY", width / 2, height * 0.22);
   text("SPACE      INVADERS", width / 2, height * 0.30);
@@ -24,11 +26,18 @@ function PantallaInicio() {
   // 2. Título principal
  
   text("*SCORE   ADVANCE   TABLE*", width / 2,  height * 0.38);
-  text("nave = ? MYSTERY", width / 2,  height * 0.43);
-  text("x = 30 POINTS", width / 2,  height * 0.48); 
-  text("y = 20 POINTS", width / 2,  height * 0.53);  
-  text("z = 10 POINTS", width / 2, height * 0.58);  
-  
+  push();
+  textAlign(LEFT, CENTER);
+  let textoX = width / 2 - 60;
+  text("= ? MYSTERY", textoX, height * 0.43);
+  text("= 30 POINTS", textoX, height * 0.48);
+  text("= 20 POINTS", textoX, height * 0.53);
+  text("= 10 POINTS", textoX, height * 0.58);
+  pop();
+  menuUfo.mostrar();
+  menuCalamar.mostrar();
+  menuCangrejo.mostrar();
+  menuPulpo.mostrar();
   
   // 3. BOTÓN DE SONIDO RETRO (Dibujado con figuras)
   // Definimos la posición central del botón
@@ -125,8 +134,9 @@ function PantallaFinJuego() {
   fill(255);
   textSize(20);
   text("FINAL SCORE: " + puntaje, width / 2, height / 2 + 20);
+  text("HI-SCORE: " + hiScore, width / 2, height / 2 + 45);
   textSize(14);
-  text("Press 'R' to try again", width / 2, height / 2 + 60);
+  text("Press 'R' to try again", width / 2, height / 2 + 80);
   
 
 }
@@ -136,7 +146,10 @@ function PantallaFinJuego() {
 
 function PantallaJuego(){
   background(10, 10, 25); // Fondo espacial oscuro
- 
+   if (puntaje > hiScore) {
+    hiScore = puntaje;
+    storeItem('hiScoreSpaceInvaders', hiScore);
+  }
   if (juegoTerminado) {
     PantallaFinJuego();
     return;
