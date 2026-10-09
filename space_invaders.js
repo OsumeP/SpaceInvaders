@@ -5,7 +5,9 @@ let enemigos = [];         // Lista de marcianitos
 let laseresEnemigos = [];  // Disparos de los enemigos
 let ufo;
 let escudos = [];
+let menuUfo, menuCalamar, menuCangrejo, menuPulpo;
 let puntaje = 0;
+let hiScore = 0;
 let vidas = 3;             // El jugador empieza con 3 vidas
 let juegoTerminado = false;
 
@@ -44,6 +46,14 @@ function setup() {
   if (sonidoActivado && music.title) {
     music.title.loop();
   }
+  let iconoX = width / 2 - 100;
+  menuUfo      = new UFO();
+  menuUfo.x    = iconoX;
+  menuUfo.y    = height * 0.43;
+  menuCalamar  = new Enemigo(iconoX, height * 0.48, 0);
+  menuCangrejo = new Enemigo(iconoX, height * 0.53, 1);
+  menuPulpo    = new Enemigo(iconoX, height * 0.58, 2);
+  hiScore = Number(getItem('hiScoreSpaceInvaders')) || 0;
 }
 
 function draw() {
