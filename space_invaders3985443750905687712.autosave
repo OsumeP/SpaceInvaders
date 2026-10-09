@@ -1,0 +1,181 @@
+// --- CONFIGURACIÓN GLOBAL DEL JUEGO ---
+let tanque;
+let laseres = [];          // Disparos del jugador
+let enemigos = [];         // Lista de marcianitos
+let laseresEnemigos = [];  // Disparos de los enemigos
+let ufo;
+let puntaje = 0;
+let vidas = 3;             // El jugador empieza con 3 vidas
+let juegoTerminado = false;
+
+// Variables de recursos (Música y fuentes)
+let music;
+let font;
+
+let sonidoActivado = false; // Empieza activado por defecto
+let audioIniciado = false; // Se vuelve true tras el primer gesto del usuario
+
+let explosiones = [];      // Explosiones por choque de disparos
+
+// Estados posibles del juego
+const ESTADO_INICIO = 0;
+const ESTADO_JUGANDO = 1;
+
+let estadoActual = ESTADO_INICIO;
+let logoSpaceInvaders; 
+
+// Sin p5.sound (abierto con file://) se definen sustitutos mudos para que el juego funcione
+const AUDIO_DISPONIBLE = typeof loadSound === "function";
+if (!AUDIO_DISPONIBLE) {
+  window.userStartAudio = () => {};
+  window.getAudioContext = () => ({ state: "running", resume() {} });
+}
+
+// Carga un sonido; si falla (p. ej. abriendo con file://) el juego igual continúa
+function cargarSonido(ruta) {
+  return loadSound(
+    ruta,
+    () => {},
+    (err) => console.warn("No se pudo cargar el sonido:", ruta, err)
+  );
+}
+
+// Los sonidos se cargan en setup() (no en preload) para que un fallo de audio
+// nunca bloquee el arranque del juego.
+function cargarAudio() {
+  music = {
+    title: cargarSonido("./Resources/sound/Title.mp3"),
+    song: cargarSonido("./Resources/sound/Game.mp3"),
+    tanque_gun: cargarSonido("./Resources/sound/Gun_Tanque.mp3"),
+    enemigo_exp: cargarSonido("./Resources/sound/explote_ene.mp3")
+  };
+}
+
+// Fuente cargada vía CSS (@font-face en index.html); loadFont usa XHR y bloquea con file://
+font = {
+  Pixel: "PixelSpace"
+};
+
+function setup() {
+  const canvas = createCanvas(800, 600);
+  canvas.parent('canvas-container');
+  textAlign(CENTER, CENTER);
+  try {
+    if (!AUDIO_DISPONIBLE) throw new Error("p5.sound no cargado (file://); juego sin sonido");
+    cargarAudio();
+  } catch (e) {
+    console.warn("Audio no disponible:", e);
+    music = null;
+  }
+  // La música de título arranca en el primer gesto del usuario (política de autoplay del navegador)
+}
+
+// Desbloquea el contexto de audio del navegador (requiere gesto del usuario)
+function habilitarAudio() {
+  userStartAudio();
+  if (getAudioContext().state !== 'running') {
+    getAudioContext().resume();
+  }
+}
+
+// Deja sonando solo la pista que corresponde al estado actual y al botón de sonido
+function actualizarMusica() {
+  if (!music || !audioIniciado) return;
+
+  if (!sonidoActivado) {
+    if (music.title.isPlaying()) music.title.stop();
+    if (music.song.isPlaying()) music.song.stop();
+  } else if (estadoActual === ESTADO_INICIO) {
+    if (music.song.isPlaying()) music.song.stop();
+    if (!music.title.isPlaying()) music.title.loop();
+  } else {
+    if (music.title.isPlaying()) music.title.stop();
+    if (!music.song.isPlaying()) music.song.loop();
+  }
+}
+
+// Alterna el sonido global y actualiza la música
+function alternarSonido() {
+  sonidoActivado = !sonidoActivado;
+  actualizarMusica();
+}
+
+function draw() {
+  background(0);
+  
+  if (estadoActual === ESTADO_INICIO) {
+    PantallaInicio();
+  } else if (estadoActual === ESTADO_JUGANDO) {
+    PantallaJuego();
+  }
+}
+
+// Auxiliar para iniciar/reiniciar la partida
+function iniciarJuego() {
+  estadoActual = ESTADO_JUGANDO; 
+  
+  // Transición de música: Detener Título -> Iniciar Juego
+  actualizarMusica();
+
+  reiniciarJuego();   
+}
+
+// Detectar el Click del mouse
+function mousePressed() {
+  habilitarAudio();
+  audioIniciado = true;
+
+  if (estadoActual === ESTADO_INICIO) {
+    // Coordenadas del botón de sonido en PantallaInicio
+    let btnX = width / 2;
+    let btnY = 475;
+    
+    // Si hace click en la zona del botón de sonido
+    if (dist(mouseX, mouseY, btnX, btnY) < 40) {
+      // Alterna el sonido también en el primer gesto (alternarSonido ya actualiza la música)
+      alternarSonido();
+      return; // Detiene la ejecución para no iniciar el juego al hacer clic en el botón
+    }
+    
+    // Si hace click fuera del botón, arranca el juego
+    iniciarJuego();
+  }
+}
+
+// Detectar teclas
+function keyPressed() {
+  habilitarAudio();
+  if (!audioIniciado) {
+    audioIniciado = true;
+    actualizarMusica();
+  }
+
+  if (key === 'm' || key === 'M') {
+    alternarSonido();
+    return;
+  }
+
+  if (estadoActual === ESTADO_INICIO) {
+    if (key === ' ') { 
+      iniciarJuego();
+    }
+  } else if (estadoActual === ESTADO_JUGANDO) {
+    // Disparar láser con Barra Espaciadora si no hay un disparo en pantalla y el juego sigue activo
+    if (key === ' ' && laseres.length < 1 && !juegoTerminado) {
+      laseres.push(new Laser(tanque.x, tanque.y));
+      
+      if (sonidoActivado && music && music.tanque_gun) {
+        music.tanque_gun.play(); 
+      }
+    }
+    
+    // Reiniciar juego con 'R'
+    if (key === 'r' || key === 'R') {
+      // Detener música de fondo previa al reiniciar para evitar superposiciones
+      if (music && music.song) {
+        music.song.stop();
+      }
+      iniciarJuego();
+    }
+  }
+}
