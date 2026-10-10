@@ -22,8 +22,8 @@ Al estar hecho en **p5.js**, puedes jugarlo de forma local de manera muy sencill
    ```bash
    git clone https://github.com
    ```
-2. Abre el archivo `index.html` en cualquier navegador web (Chrome, Firefox, Edge, etc.).
-3. ¡Empieza a jugar!
+2. Abre el archivo desde processing
+3.Disfruta el juego
 
 
 ## Estructura del Proyecto
